@@ -1,0 +1,108 @@
+name: Template Setup
+
+on:
+  create:
+
+jobs:
+  setup:
+    # Only run if this is a new repo created from template (not the template itself)
+    if: github.repository != 'nclh-res-tech/go-api-codespaces-template'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Extract repo info
+        id: repo
+        run: |
+          # Extract owner and repo name from github.repository
+          REPO_NAME="${{ github.event.repository.name }}"
+          REPO_OWNER="${{ github.repository_owner }}"
+          MODULE_PATH="github.com/${REPO_OWNER}/${REPO_NAME}"
+          
+          # Use repo name as service name (convert to lowercase, replace invalid chars)
+          SERVICE_NAME=$(echo "$REPO_NAME" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9-]/-/g')
+          
+          echo "module_path=$MODULE_PATH" >> $GITHUB_OUTPUT
+          echo "service_name=$SERVICE_NAME" >> $GITHUB_OUTPUT
+          echo "Module Path: $MODULE_PATH"
+          echo "Service Name: $SERVICE_NAME"
+      
+      - name: Replace placeholders
+        run: |
+          MODULE_PATH="${{ steps.repo.outputs.module_path }}"
+          SERVICE_NAME="${{ steps.repo.outputs.service_name }}"
+          
+          # Find and replace in all relevant files
+          find . -type f \( -name "*.go" -o -name "*.yaml" -o -name "*.yml" -o -name "*.json" -o -name "*.md" -o -name "Makefile" -o -name "Dockerfile" \) \
+            -not -path "./.git/*" \
+            -not -path "./vendor/*" \
+            -exec sed -i "s|{{MODULE_PATH}}|$MODULE_PATH|g" {} \;
+          
+          find . -type f \( -name "*.go" -o -name "*.yaml" -o -name "*.yml" -o -name "*.json" -o -name "*.md" -o -name "Makefile" -o -name "Dockerfile" \) \
+            -not -path "./.git/*" \
+            -not -path "./vendor/*" \
+            -exec sed -i "s|{{SERVICE_NAME}}|$SERVICE_NAME|g" {} \;
+          
+          echo "Placeholders replaced successfully"
+      
+      - name: Update go.mod
+        run: |
+          MODULE_PATH="${{ steps.repo.outputs.module_path }}"
+          
+          # Update go.mod with correct module path
+          cat > go.mod << EOF
+          module $MODULE_PATH
+
+          go 1.22
+
+          require (
+            github.com/gin-contrib/zap v0.2.0
+            github.com/gin-gonic/gin v1.9.1
+            github.com/go-playground/validator/v10 v10.19.0
+            github.com/google/uuid v1.6.0
+            github.com/knadh/koanf/parsers/yaml v0.1.0
+            github.com/knadh/koanf/providers/env v0.1.0
+            github.com/knadh/koanf/providers/file v0.1.0
+            github.com/knadh/koanf/v2 v2.1.0
+            github.com/prometheus/client_golang v1.19.0
+            github.com/swaggest/openapi-go v0.2.50
+            github.com/swaggest/swgui v1.8.0
+            go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin v0.49.0
+            go.opentelemetry.io/otel v1.24.0
+            go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc v1.24.0
+            go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp v1.24.0
+            go.opentelemetry.io/otel/exporters/prometheus v0.46.0
+            go.opentelemetry.io/otel/exporters/stdout/stdouttrace v1.24.0
+            go.opentelemetry.io/otel/sdk v1.24.0
+            go.opentelemetry.io/otel/sdk/metric v1.24.0
+            go.uber.org/zap v1.27.0
+          )
+          EOF
+      
+      - name: Remove setup files
+        run: |
+          # Remove the setup script and this workflow (no longer needed)
+          rm -f setup.sh
+          rm -f .github/workflows/template-setup.yml
+          rm -f .github/template-config.yml
+          
+          # Remove workflow dir if empty
+          rmdir .github/workflows 2>/dev/null || true
+      
+      - name: Commit changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "chore: Initialize project from template
+
+          - Replaced {{MODULE_PATH}} with ${{ steps.repo.outputs.module_path }}
+          - Replaced {{SERVICE_NAME}} with ${{ steps.repo.outputs.service_name }}
+          - Removed template setup files"
+          git push

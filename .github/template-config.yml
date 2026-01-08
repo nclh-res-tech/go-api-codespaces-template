@@ -1,0 +1,13 @@
+# GitHub Repository Template Configuration
+# These variables will be prompted when creating a new repository from this template
+
+variables:
+  - name: SERVICE_NAME
+    description: "The name of your service (e.g., my-api-service)"
+    default: "my-service"
+    required: true
+    
+  - name: MODULE_PATH
+    description: "Your Go module path (e.g., github.com/myorg/my-api)"
+    default: "github.com/example/my-service"
+    required: true
