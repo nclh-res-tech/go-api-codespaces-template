@@ -9,7 +9,10 @@ jobs:
   initialize:
     name: Configure project settings
     # Only run on repos created from template (not the template itself)
-    if: github.repository != 'nclh-res-tech/go-api-codespaces-template'
+    # Skip if this is a commit from github-actions bot (to prevent loops)
+    if: |
+      github.repository != 'nclh-res-tech/go-api-codespaces-template' &&
+      github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -87,7 +90,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add -A
-          git commit -m "🎉 Initialize ${{ env.SERVICE_NAME }}
+          git commit -m "🎉 Initialize ${{ env.SERVICE_NAME }} [skip ci]
 
           Automatically configured from go-api-codespaces-template:
           • Module path: ${{ env.MODULE_PATH }}
