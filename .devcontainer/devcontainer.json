@@ -1,6 +1,6 @@
 {
   "name": "Go API Service",
-  "image": "mcr.microsoft.com/devcontainers/go:1.24",
+  "image": "mcr.microsoft.com/devcontainers/go:1.22",
   "features": {
     "ghcr.io/devcontainers/features/docker-in-docker:2": {},
     "ghcr.io/devcontainers/features/github-cli:1": {}
