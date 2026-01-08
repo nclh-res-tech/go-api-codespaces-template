@@ -126,7 +126,7 @@ func (s *Server) Router() *gin.Engine {
 	}
 
 	if s.openAPI != nil {
-		s.openAPI.AttachDocs(engine, "{{API_SPEC_FILE}}", "{{API_DOC_ROOT}}")
+		s.openAPI.AttachDocs(engine, "/openapi.json", "/docs")
 	}
 
 	return engine
