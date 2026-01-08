@@ -71,8 +71,10 @@ jobs:
       
       - name: 📦 Resolve dependencies
         if: steps.check.outputs.needs_init == 'true'
+        env:
+          GOTOOLCHAIN: local
         run: |
-          # Use -compat flag to ensure compatibility with Go 1.22
+          # Prevent Go from auto-upgrading the toolchain
           go mod tidy -compat=1.22
           echo "✅ Dependencies resolved and go.sum generated"
       
