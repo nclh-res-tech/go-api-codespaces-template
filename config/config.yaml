@@ -1,0 +1,26 @@
+# Application configuration
+# Environment-specific overrides go in config-{environment}.yaml
+
+api_environment: development
+
+http:
+  port: "8080"
+  debug: true
+
+auth:
+  enabled: false
+  cert:
+    enabled: false
+    cert_fingerprints: []
+    cert_common_names: []
+
+telemetry:
+  service_name: "{{SERVICE_NAME}}"
+  traces:
+    - exporter: stdout
+  metrics:
+    exporter: prometheus
+
+backend:
+  url: ""
+  mode: rest

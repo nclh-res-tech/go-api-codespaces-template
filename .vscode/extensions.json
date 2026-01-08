@@ -1,0 +1,11 @@
+{
+  "recommendations": [
+    "golang.go",
+    "ms-azuretools.vscode-docker",
+    "redhat.vscode-yaml",
+    "streetsidesoftware.code-spell-checker",
+    "eamodio.gitlens",
+    "yzhang.markdown-all-in-one",
+    "ms-vscode.makefile-tools"
+  ]
+}

@@ -1,0 +1,12 @@
+# Default owners for everything in the repo
+* @{{GITHUB_ORG}}/platform-team
+
+# Go code
+*.go @{{GITHUB_ORG}}/backend-team
+
+# Configuration
+/config/ @{{GITHUB_ORG}}/platform-team
+/.github/ @{{GITHUB_ORG}}/platform-team
+
+# Docker
+Dockerfile @{{GITHUB_ORG}}/platform-team
