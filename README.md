@@ -1,31 +1,32 @@
 # {{SERVICE_NAME}} API
 
-A Go microservice built from the go-api-template.
+A Go microservice built from the [Go API Codespaces Template](https://github.com/nclh-res-tech/go-api-codespaces-template).
 
 ## 🚀 Quick Start
 
 ### Using GitHub Codespaces (Recommended)
 
-1. Click "Use this template" → "Create a new repository"
-2. Open your new repo in GitHub Codespaces
-3. The devcontainer will automatically set up your environment
-4. Run the setup script to customize for your project:
-   ```bash
-   ./setup.sh
-   ```
+1. Click **"Use this template"** → **"Create a new repository"**
+2. Name your repository and create it
+3. **Wait for the GitHub Action to complete** (check the Actions tab - takes ~1-2 minutes)
+   - The action automatically configures your project name and Go module path
+4. Open your new repo in GitHub Codespaces
 5. Start the server:
    ```bash
    make run
    ```
 
+That's it! The server will start at `http://localhost:8080`.
+
+> **Note:** If you open Codespaces before the GitHub Action completes, run `git pull` to get the configured files.
+
 ### Local Development
 
 1. Clone your repository
 2. Ensure you have Go 1.22+ installed
-3. Run the setup script:
+3. Download dependencies:
    ```bash
-   chmod +x setup.sh
-   ./setup.sh
+   go mod download
    ```
 4. Start the server:
    ```bash
@@ -39,7 +40,6 @@ A Go microservice built from the go-api-template.
 ├── cmd/
 │   └── api-server/          # Application entry point
 ├── common/                   # Shared utilities (don't modify these much)
-│   ├── errors/              # Error types
 │   ├── httpclient/          # HTTP client utilities
 │   ├── httpserver/          # HTTP server, middleware, OpenAPI
 │   ├── messagebroker/       # Kafka/message broker stubs
@@ -60,8 +60,7 @@ A Go microservice built from the go-api-template.
 ├── .github/                 # GitHub Actions, templates
 ├── .vscode/                 # VS Code settings
 ├── Dockerfile               # Container build
-├── Makefile                 # Build commands
-└── setup.sh                 # Project setup script
+└── Makefile                 # Build commands
 ```
 
 ## 🔧 Development
