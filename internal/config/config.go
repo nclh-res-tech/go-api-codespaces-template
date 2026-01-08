@@ -6,9 +6,9 @@ import (
 	"os"
 	"strings"
 
-	"{{ .ModulePath }}/common/errors"
-	"{{ .ModulePath }}/common/observability"
-	corehttp "{{ .ModulePath }}/internal/core/httpserver"
+	"{{MODULE_PATH}}/common/errors"
+	"{{MODULE_PATH}}/common/observability"
+	corehttp "{{MODULE_PATH}}/internal/core/httpserver"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/knadh/koanf/parsers/yaml"

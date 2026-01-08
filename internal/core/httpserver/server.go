@@ -3,7 +3,7 @@ package httpserver
 import (
 	"context"
 
-	commonhttp "{{ .ModulePath }}/common/httpserver"
+	commonhttp "{{MODULE_PATH}}/common/httpserver"
 )
 
 const (
