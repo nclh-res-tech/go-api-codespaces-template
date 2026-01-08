@@ -1,4 +1,4 @@
-name: Template Setup
+name: 🚀 Initialize Project from Template
 
 on:
   push:
@@ -6,53 +6,44 @@ on:
       - main
 
 jobs:
-  setup:
-    # Only run if this is a new repo created from template (not the template itself)
-    # and if the placeholder still exists (hasn't been replaced yet)
+  initialize:
+    name: Configure project settings
+    # Only run on repos created from template (not the template itself)
     if: github.repository != 'nclh-res-tech/go-api-codespaces-template'
     runs-on: ubuntu-latest
     permissions:
       contents: write
     
     steps:
-      - name: Checkout
+      - name: 📥 Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
       
-      - name: Check if setup is needed
+      - name: 🔍 Check if initialization is needed
         id: check
         run: |
           if grep -q "{{MODULE_PATH}}" go.mod 2>/dev/null; then
-            echo "needs_setup=true" >> $GITHUB_OUTPUT
-            echo "Setup is needed - placeholders found"
+            echo "needs_init=true" >> $GITHUB_OUTPUT
           else
-            echo "needs_setup=false" >> $GITHUB_OUTPUT
-            echo "Setup not needed - placeholders already replaced"
+            echo "needs_init=false" >> $GITHUB_OUTPUT
+            echo "✅ Project already initialized - skipping"
           fi
       
-      - name: Extract repo info
-        if: steps.check.outputs.needs_setup == 'true'
-        id: repo
+      - name: 🛠️ Initialize project
+        if: steps.check.outputs.needs_init == 'true'
         run: |
+          # Extract repository info
           REPO_NAME="${{ github.event.repository.name }}"
           REPO_OWNER="${{ github.repository_owner }}"
           MODULE_PATH="github.com/${REPO_OWNER}/${REPO_NAME}"
           SERVICE_NAME=$(echo "$REPO_NAME" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9-]/-/g')
-          echo "module_path=$MODULE_PATH" >> $GITHUB_OUTPUT
-          echo "service_name=$SERVICE_NAME" >> $GITHUB_OUTPUT
-          echo "Module Path: $MODULE_PATH"
-          echo "Service Name: $SERVICE_NAME"
-      
-      - name: Replace placeholders
-        if: steps.check.outputs.needs_setup == 'true'
-        run: |
-          MODULE_PATH="${{ steps.repo.outputs.module_path }}"
-          SERVICE_NAME="${{ steps.repo.outputs.service_name }}"
           
-          echo "Replacing MODULE_PATH with: $MODULE_PATH"
-          echo "Replacing SERVICE_NAME with: $SERVICE_NAME"
+          echo "📦 Configuring project:"
+          echo "   Module: $MODULE_PATH"
+          echo "   Service: $SERVICE_NAME"
           
+          # Replace placeholders in all relevant files
           find . -type f \( -name "*.go" -o -name "*.yaml" -o -name "*.yml" -o -name "*.json" -o -name "*.md" -o -name "Makefile" -o -name "Dockerfile" \) \
             -not -path "./.git/*" \
             -not -path "./vendor/*" \
@@ -63,41 +54,52 @@ jobs:
             -not -path "./vendor/*" \
             -exec sed -i "s|{{SERVICE_NAME}}|$SERVICE_NAME|g" {} \;
           
-          echo "Placeholders replaced successfully"
-      
-      - name: Set up Go
-        if: steps.check.outputs.needs_setup == 'true'
+          echo "✅ Placeholders replaced"
+          
+          # Save for later steps
+          echo "MODULE_PATH=$MODULE_PATH" >> $GITHUB_ENV
+          echo "SERVICE_NAME=$SERVICE_NAME" >> $GITHUB_ENV
+
+      - name: 🐹 Set up Go
+        if: steps.check.outputs.needs_init == 'true'
         uses: actions/setup-go@v5
         with:
           go-version: '1.22'
       
-      - name: Update go.mod and generate go.sum
-        if: steps.check.outputs.needs_setup == 'true'
-        env:
-          MODULE_PATH: ${{ steps.repo.outputs.module_path }}
+      - name: 📦 Resolve dependencies
+        if: steps.check.outputs.needs_init == 'true'
         run: |
-          # Update go.mod with correct module path
-          sed -i "s|module {{MODULE_PATH}}|module $MODULE_PATH|g" go.mod
-          
-          # Run go mod tidy to resolve dependencies and generate go.sum
           go mod tidy
+          echo "✅ Dependencies resolved and go.sum generated"
       
-      - name: Remove setup files
-        if: steps.check.outputs.needs_setup == 'true'
+      - name: 🧹 Clean up template files
+        if: steps.check.outputs.needs_init == 'true'
         run: |
           rm -f setup.sh
           rm -f .github/workflows/template-setup.yml
           rm -f .github/template-config.yml
           rmdir .github/workflows 2>/dev/null || true
+          echo "✅ Template files removed"
       
-      - name: Commit changes
-        if: steps.check.outputs.needs_setup == 'true'
-        env:
-          MODULE_PATH: ${{ steps.repo.outputs.module_path }}
-          SERVICE_NAME: ${{ steps.repo.outputs.service_name }}
+      - name: 💾 Commit changes
+        if: steps.check.outputs.needs_init == 'true'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add -A
-          git commit -m "chore: Initialize project from template - Replaced placeholders with $MODULE_PATH and $SERVICE_NAME"
+          git commit -m "🎉 Initialize ${{ env.SERVICE_NAME }}
+
+          Automatically configured from go-api-codespaces-template:
+          • Module path: ${{ env.MODULE_PATH }}
+          • Service name: ${{ env.SERVICE_NAME }}
+          • Dependencies resolved (go.sum generated)
+          • Template setup files removed"
           git push
+          
+          echo ""
+          echo "🎉 Project initialized successfully!"
+          echo ""
+          echo "Next steps:"
+          echo "  1. Open in GitHub Codespaces"
+          echo "  2. Run: make run"
+          echo ""
