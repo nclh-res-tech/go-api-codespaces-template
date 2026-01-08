@@ -15,6 +15,7 @@ require (
 	github.com/swaggest/openapi-go v0.2.50
 	github.com/swaggest/swgui v1.8.0
 	go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin v0.49.0
+go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.49.0
 	go.opentelemetry.io/otel v1.24.0
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc v1.24.0
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp v1.24.0
@@ -22,5 +23,6 @@ require (
 	go.opentelemetry.io/otel/exporters/stdout/stdouttrace v1.24.0
 	go.opentelemetry.io/otel/sdk v1.24.0
 	go.opentelemetry.io/otel/sdk/metric v1.24.0
-	go.uber.org/zap v1.27.0
+go.uber.org/zap v1.27.0
+github.com/go-resty/resty/v2 v2.12.0
 )

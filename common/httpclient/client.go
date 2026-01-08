@@ -4,8 +4,8 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/go-resty/resty/v2"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
-	"resty.dev/v3"
 )
 
 // Config configures the outbound HTTP client.
@@ -16,10 +16,14 @@ type Config struct {
 	UserAgent string            `koanf:"user_agent"`
 }
 
-// New constructs a Resty v3 client with sensible defaults and tracing instrumentation.
+// New constructs a Resty client with sensible defaults and tracing instrumentation.
 func New(cfg Config) *resty.Client {
-	client := resty.New()
-	client.SetTransport(otelhttp.NewTransport(http.DefaultTransport))
+	// Create HTTP transport with OpenTelemetry instrumentation
+	transport := otelhttp.NewTransport(http.DefaultTransport)
+
+	client := resty.NewWithClient(&http.Client{
+		Transport: transport,
+	})
 
 	if cfg.BaseURL != "" {
 		client.SetBaseURL(cfg.BaseURL)
