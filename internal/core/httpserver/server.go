@@ -7,10 +7,10 @@ import (
 )
 
 const (
-	defaultServiceName    = "{{ .ServiceName }}"
-	defaultAPITitle       = "{{ .APITitle }}"
-	defaultAPIDescription = "{{ .APIDescription }}"
-	defaultAPIVersion     = "{{ .APIVersion }}"
+	defaultServiceName    = "{{SERVICE_NAME}}"
+	defaultAPITitle       = "{{SERVICE_NAME}} API"
+	defaultAPIDescription = "API for {{SERVICE_NAME}}"
+	defaultAPIVersion     = "1.0.0"
 )
 
 // New constructs a HTTP server with app defaults (logger, service name, docs) layered on the shared builder.
