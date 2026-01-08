@@ -72,9 +72,8 @@ jobs:
       - name: 📦 Resolve dependencies
         if: steps.check.outputs.needs_init == 'true'
         run: |
-          go mod tidy
-          # Ensure go.mod specifies Go 1.22 (not a higher version from dependencies)
-          sed -i 's/^go [0-9.]*/go 1.22/' go.mod
+          # Use -compat flag to ensure compatibility with Go 1.22
+          go mod tidy -compat=1.22
           echo "✅ Dependencies resolved and go.sum generated"
       
       - name: 🧹 Clean up template files
