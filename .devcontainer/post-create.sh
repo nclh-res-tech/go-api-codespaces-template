@@ -1,27 +1,31 @@
 #!/bin/bash
-set -e
 
 echo "🚀 Setting up Go API development environment..."
-
-# Download Go dependencies
-echo "📦 Downloading Go modules..."
-go mod download
-
-# Install development tools
-echo "🔧 Installing development tools..."
-go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
-go install github.com/go-delve/delve/cmd/dlv@latest
 
 # Check if setup has been run
 if grep -q "{{MODULE_PATH}}" go.mod 2>/dev/null; then
     echo ""
     echo "⚠️  Template not yet configured!"
     echo ""
-    echo "Please run the setup script to configure your service:"
+    echo "The GitHub Action may still be running to configure your project."
+    echo "Wait a moment and run: git pull"
+    echo ""
+    echo "Or run the setup script manually:"
     echo ""
     echo "    ./setup.sh"
     echo ""
+    echo "Skipping Go module download until setup is complete."
+    echo ""
 else
+    # Download Go dependencies
+    echo "📦 Downloading Go modules..."
+    go mod download || echo "Warning: go mod download had issues, continuing..."
+
+    # Install development tools
+    echo "🔧 Installing development tools..."
+    go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest || true
+    go install github.com/go-delve/delve/cmd/dlv@latest || true
+
     echo ""
     echo "✅ Development environment ready!"
     echo ""
@@ -32,3 +36,6 @@ else
     echo "  make lint    - Run linter"
     echo ""
 fi
+
+# Always exit successfully - don't fail container creation
+exit 0
