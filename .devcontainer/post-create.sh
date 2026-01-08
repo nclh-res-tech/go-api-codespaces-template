@@ -19,6 +19,8 @@ if grep -q "{{MODULE_PATH}}" go.mod 2>/dev/null; then
 else
     # Download Go dependencies
     echo "📦 Downloading Go modules..."
+    export GOTOOLCHAIN=local
+    go mod tidy -compat=1.22 || echo "Warning: go mod tidy had issues, continuing..."
     go mod download || echo "Warning: go mod download had issues, continuing..."
 
     # Install development tools
