@@ -44,12 +44,12 @@ jobs:
           echo "   Service: $SERVICE_NAME"
           
           # Replace placeholders in all relevant files
-          find . -type f \( -name "*.go" -o -name "*.yaml" -o -name "*.yml" -o -name "*.json" -o -name "*.md" -o -name "Makefile" -o -name "Dockerfile" \) \
+          find . -type f \( -name "*.go" -o -name "go.mod" -o -name "*.yaml" -o -name "*.yml" -o -name "*.json" -o -name "*.md" -o -name "Makefile" -o -name "Dockerfile" \) \
             -not -path "./.git/*" \
             -not -path "./vendor/*" \
             -exec sed -i "s|{{MODULE_PATH}}|$MODULE_PATH|g" {} \;
           
-          find . -type f \( -name "*.go" -o -name "*.yaml" -o -name "*.yml" -o -name "*.json" -o -name "*.md" -o -name "Makefile" -o -name "Dockerfile" \) \
+          find . -type f \( -name "*.go" -o -name "go.mod" -o -name "*.yaml" -o -name "*.yml" -o -name "*.json" -o -name "*.md" -o -name "Makefile" -o -name "Dockerfile" \) \
             -not -path "./.git/*" \
             -not -path "./vendor/*" \
             -exec sed -i "s|{{SERVICE_NAME}}|$SERVICE_NAME|g" {} \;
