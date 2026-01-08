@@ -6,9 +6,9 @@ import (
 	"os"
 	"strings"
 
-	"{{MODULE_PATH}}/common/errors"
-	"{{MODULE_PATH}}/common/observability"
-	corehttp "{{MODULE_PATH}}/internal/core/httpserver"
+	"{{ .ModulePath }}/common/errors"
+	"{{ .ModulePath }}/common/observability"
+	corehttp "{{ .ModulePath }}/internal/core/httpserver"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/knadh/koanf/parsers/yaml"
@@ -36,7 +36,7 @@ var (
 // Settings holds backend connectivity options (REST/SOAP).
 type Settings struct {
 	BackendURL           string            `koanf:"url" json:"backend_url" yaml:"backend_url"`
-	BackendMode          string            `koanf:"mode" json:"backend_mode,omitempty" yaml:"backend_mode,omitempty"`
+	BackendMode          string            `koanf:"mode" json:"backend_mode,omitempty" yaml:"backend_mode,omitempty"` // rest|soap
 	SOAPAction           string            `koanf:"soap_action" json:"soap_action,omitempty" yaml:"soap_action,omitempty"`
 	SOAPEnvelopeTemplate string            `koanf:"soap_envelope_template" json:"soap_envelope_template,omitempty" yaml:"soap_envelope_template,omitempty"`
 	BackendURLOverrides  map[string]string `koanf:"url_overrides" json:"backend_url_overrides,omitempty" yaml:"backend_url_overrides,omitempty"`
@@ -53,7 +53,7 @@ type Config struct {
 
 // AuthConfig controls HTTP authentication middleware.
 type AuthConfig struct {
-	Enabled bool `koanf:"enabled"`
+	Enabled bool `koanf:"enabled"` // global on/off
 
 	Cert struct {
 		Enabled          bool     `koanf:"enabled"`
@@ -81,7 +81,9 @@ func Load(ctx context.Context) (*Config, error) {
 		}
 	}
 
+	// Environment variables prefixed with APP_ override config keys using __ as a nested delimiter.
 	if err := k.Load(env.Provider("APP_", ".", func(key string) string {
+		// APP_HTTP__PORT -> http.port
 		key = strings.TrimPrefix(key, "APP_")
 		key = strings.ReplaceAll(strings.ToLower(key), "__", ".")
 		return key
@@ -107,12 +109,13 @@ func Load(ctx context.Context) (*Config, error) {
 		return nil, ErrValidation.Wrap(err)
 	}
 
+	// Log environment for visibility.
 	fmt.Printf("loaded config environment: %s\n", config.APIEnv)
 
 	return config, nil
 }
 
-// LoadSettings returns only the backend settings block.
+// LoadSettings returns only the backend settings block (used by stores/services).
 func LoadSettings() (Settings, error) {
 	cfg, err := Load(context.Background())
 	if err != nil {

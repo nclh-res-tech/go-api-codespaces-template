@@ -1,16 +1,30 @@
 package httpserver
 
 import (
-	"{{MODULE_PATH}}/common/httpserver"
+	"context"
+
+	commonhttp "{{ .ModulePath }}/common/httpserver"
 )
 
-// New creates an HTTP server with application defaults.
-func New(routes []httpserver.Route, opts ...func(*httpserver.Server)) *httpserver.Server {
-	return httpserver.New(routes, opts...)
-}
+const (
+	defaultServiceName    = "{{ .ServiceName }}"
+	defaultAPITitle       = "{{ .APITitle }}"
+	defaultAPIDescription = "{{ .APIDescription }}"
+	defaultAPIVersion     = "{{ .APIVersion }}"
+)
 
-// Config holds HTTP server configuration.
-type Config struct {
-	Port  string `koanf:"port"`
-	Debug bool   `koanf:"debug"`
+// New constructs a HTTP server with app defaults (logger, service name, docs) layered on the shared builder.
+func New(routes []commonhttp.Route, opts ...func(*commonhttp.Server)) *commonhttp.Server {
+	logger := From(context.Background())
+	openAPI := commonhttp.NewOpenAPI(logger, defaultAPITitle, defaultAPIVersion, defaultAPIDescription)
+
+	defaultOpts := []func(*commonhttp.Server){
+		commonhttp.WithLogger(logger),
+		commonhttp.WithServiceName(defaultServiceName),
+		commonhttp.WithOpenAPI(openAPI),
+	}
+
+	defaultOpts = append(defaultOpts, opts...)
+
+	return commonhttp.New(routes, defaultOpts...)
 }
